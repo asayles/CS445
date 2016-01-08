@@ -1,22 +1,28 @@
 #!/usr/bin/env python
 import json
-# open file with line delimited perceptron
-
-# load perceptron info from json to list.
-
 
 #read first char of line to get letter
-perceptron = {}
+perceptrons = {}
 
-def loadPerceptrons(perceptron):
+def loadPerceptrons():
     with open('perceptrons.data') as HDD:
-        perceptron = json.load(HDD)
-    print perceptron
-    
-def savePerceptrons():
+        perceptrons = json.load(HDD)
+         
+def savePerceptrons(perceptrons):
     with open('perceptrons.data','w') as HDD:
-        json.dump(perceptron, HDD)
+        json.dump(perceptrons, HDD)
+
+def trainPerceptrons():
+    # for line in file
+        # store letter
+        # store expected output
+        # load inputs x16
+        # load weights x16
+        # math for t
+        # compare t to expected value
     
 
-loadPerceptrons(perceptron)    
-#savePerceptrons()
+perceptrons = loadPerceptrons()
+
+   
+savePerceptrons(perceptrons)
