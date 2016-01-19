@@ -1,53 +1,191 @@
 #!/usr/bin/env python
-import json
+import json, math, csv, sys
 from string import ascii_lowercase
+from optparse import OptionParser
+from pprint import pprint
 
-#####
-# Have to store outcomes in confusion matrix
-# Have to save previous weights incase change is not good 
-#####
+####################
+# argparser:      ##
+####################
+parser = OptionParser()
+
+parser.add_option("-p", dest="perceptronsJSON",
+                  help="load perceptrons from JSON", metavar="<filename.json>")
+                  
+parser.add_option("-t", dest="trainingSet",
+                  help="data file to train with", metavar="<filename>")
+                  
+parser.add_option("-i", action="store_true", dest="initialize", default=False,
+                  help="initialize a set of perceptrons", metavar="none")                  
+
+parser.add_option("-l", dest="learningRate", default=0.2,
+                  help="set learning rate. (default 0.2)", metavar="<float>")
+                  
+parser.add_option("-s", dest="scaler", default=15,
+                  help="divide training data by this scaler. (default 15)", metavar="<int>")                  
+                  
+(options, args) = parser.parse_args()
+
+#########################
+# FUNCTIONS:           ##
+#########################
+
+def loadPerceptronsFromJSON(filename):
+    # creates a dict from JSON file
+    perceptrons = {}
+    with open(filename) as HDD:
+        # print type(HDD)
+        perceptrons = json.load(HDD)[0]
+    return perceptrons
 
 
-#read first char of line to get letter
-perceptrons = {
-        "ab":{"w0": 0.1,"w1": 0.2},
-                "ac":{"w0": 0.1,"w1": 0.2},
-                "ad":{"w0": 0.1,"w1": 0.2}
-}
-
-
-
-def loadPerceptrons():
-    with open('perceptrons.json') as HDD:
-        perceptrons = json.load(HDD)
-        print perceptrons
-         
-def savePerceptrons(perceptrons):
-    print "saving this thing"
-    print len(perceptrons.keys())
-    # print perceptrons
-    with open('perceptrons.data','w') as HDD:
-        json.dump(perceptrons, HDD)
-
-def trainPerceptrons():
-    f = open('data','r')
-    for line in f: # for line in file
-        featureVector = line.rstrip('\n').split(',')
-        target = featureVector[0]
-    
-    #### create perceptron combos
+def buildPerceptronDict():
+    # iterates over all 26 aplphabet letters and makes each unique tuple as key for dict
+    # seeds dict with values
+    perceptrons = {}
     for c1 in ascii_lowercase:
         for c2 in ascii_lowercase:
             if c1 != c2:
                 if c2+c1 not in perceptrons:
-                    perceptrons[c1+c2 ]= "{\"w0\": 0.1,\"w1\": 0.2,\"w2\": 0.3,\"w3\": 0.1,\"w4\": 0.2,\"w5\": 0.3,\"w6\": 0.1,\"w7\": 0.2,\"w8\": 0.3,\"w9\": 0.1,\"w10\": 0.2,\"w11\": 0.3,\"w12\": 0.1,\"w13\": 0.2,\"w14\": 0.3\"w15\": 0.1,\"w16\": 0.2,\"w17\": 0.3}"
+                    perceptrons[c1+c2]= {"w0": -0.09,"w1": -0.08,"w2": -0.07,"w3": -0.06,"w4": -0.05,"w5": -0.04,"w6": -0.03,"w7": -0.02,"w8": -0.01,
+                                         "w9": 0.01,"w10": 0.02,"w11": 0.03,"w12": 0.04,"w13": 0.05,"w14": 0.06,"w15": 0.07,"w16": 0.08,"w17": 0.09}        
+    
+    return perceptrons
+     
+
+def savePerceptronsToJSON(perceptrons,filename):
+    # gets a dict and stores it as a json
+    payload = []
+    payload.append(perceptrons)
+    
+    with open(filename,'w') as HDD:
+        json.dump(payload, HDD)
+
+
+def loadTrainingSet(trainingFile):
+    with open(trainingFile,'rb') as f:
+        reader = csv.reader(f)
+        trainingSet = list(reader)
         
-        # load weights x16
-        # math for t
-        # compare t to expected value
+    return trainingSet  
+
+
+def trainPtron(ptron_id):
+    # runs a ptron through epoch's until there is no improvement in accuracy between epoch's
+    print "=== training ptron: " + ptron_id
+    epochPosChange = True
+    while epochPosChange:
+        print "--- new epoch for " + ptron_id
+        epochPosChange = runEpoch(ptron_id)
+        
+
+def runEpoch(ptron_id): 
+    # if ptron isn't 100% accurate, adjust weights, if new weights are more accurate commit change and return True
+    accuracyOne = getAccuracy(ptron_id, perceptrons[ptron_id])
+
+    if accuracyOne < 1: # only adjust weights if not perfect already
+        adjustedPtron = adjustWeights(ptron_id)
+        accuracyTwo = getAccuracy(ptron_id, adjustedPtron)
+        print "------ accuracy " + str(accuracyOne) + " " + str(accuracyTwo)
+        if accuracyTwo > accuracyOne:
+            print "------ change was positive"
+            print "------ out with the old....."
+            pprint(perceptrons[ptron_id])
+            print "------ saving...."
+            perceptrons[ptron_id].update(adjustedPtron)
+            print "------ in with the new"
+            pprint (perceptrons[ptron_id])
+            
+ 
+            return True
+    else:
+        print "------ change didn't help, or not needed"
+        return False
     
 
-#perceptrons = loadPerceptrons()
-trainPerceptrons()
-   
-savePerceptrons(perceptrons)
+def getAccuracy(ptron_id, ptron):
+    # tests one ptron with all matching featureVectors in the training list
+    correct = float(0) 
+    total = float(0)
+    decision = str
+    
+    for featureVector in trainingSet:
+        target = featureVector[0].lower()
+        
+        if target in str(ptron_id): # decides if a trainingVector is right for this ptron
+            decision = signumToAlpha(ptron_id, testFeatureVector(ptron, featureVector))
+            
+            total += 1 # increment the total for this featureVector   
+            if  decision == target: # ptron decided correctly 
+                correct += 1 # increment correct counter
+    # incase there were no training examples for this prton. Mainly durning dev.
+    if total > 0: return float(correct)/float(total)
+    else: return 0.0
+    
+
+def testFeatureVector(ptron, featureVector):
+    sum = ptron['w0'] # init sum with the bias
+    
+    for j in range(1,len(featureVector)):
+        weight = "w" + str(j) # nameing convention fix, could have used a list instead.
+        sum += ptron[weight] * (float(featureVector[j])/trainingDataScaler) # iterate over the weights and inputs to sum
+    
+    if sum < 0: return -1
+    else: return 1
+
+
+def signumToAlpha(ptron_id, signum):
+    if signum < 0: return ptron_id[0]
+    else: return ptron_id[1]
+               
+
+def adjustWeights(ptron_id):
+    # test the perceptron with each matching trainingVector and makes an adjustment if it's wrong
+    adjustedPtron = perceptrons[ptron_id]
+    
+    for featureVector in trainingSet: # iterate through the training set
+        targetAlpha = featureVector[0].lower()
+        
+        if targetAlpha in str(ptron_id): # decides if this.trainingVector is right for this.ptron
+            if targetAlpha == ptron_id[0]: targetNum = float(-1)
+            else: targetNum = float(1)
+            signum = testFeatureVector(adjustedPtron, featureVector)
+            decision = signumToAlpha(ptron_id, signum)
+            
+            if decision != targetAlpha: # ptron was wrong :-(
+                adjustedPtron['w0'] += learningRate * 1 * targetNum
+                
+                for j in range(1,len(featureVector)):
+                    weight = "w" + str(j) # nameing convention fix, could have used a list instead.
+                    adjustedPtron[weight] += learningRate * (float(featureVector[j])/trainingDataScaler) * targetNum
+                               
+    return adjustedPtron  
+        
+###############
+# MAIN:      ##
+############### 
+
+#--------------------------------
+# create a JSON of ptrons       |
+#--------------------------------
+if options.initialize:
+    print "initializing <perceptronsYoung.json> "
+    perceptrons = buildPerceptronDict()
+    savePerceptronsToJSON(perceptrons, "perceptronsYoung.json")
+    print "the deed is done, shhhhhh"
+    sys.exit()
+#-------------------
+# Train ptrons     |
+#-------------------
+if options.perceptronsJSON and options.trainingSet:
+    perceptrons = loadPerceptronsFromJSON(options.perceptronsJSON)
+    trainingSet = loadTrainingSet(options.trainingSet)
+    learningRate = options.learningRate    
+    trainingDataScaler = options.scaler
+
+    for key in perceptrons:
+        trainPtron(key)
+        
+    #savePerceptronsToJSON(perceptrons, "perceptronsMoreWiser.json")    
+else:        
+    parser.error('REQUIRED -p <filename.json> -t <filename>')        
