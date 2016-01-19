@@ -34,7 +34,6 @@ def loadPerceptronsFromJSON(filename):
     # creates a dict from JSON file
     perceptrons = {}
     with open(filename) as HDD:
-        # print type(HDD)
         perceptrons = json.load(HDD)[0]
     return perceptrons
 
@@ -63,6 +62,7 @@ def savePerceptronsToJSON(perceptrons,filename):
 
 
 def loadTrainingSet(trainingFile):
+    # use any ptron.json you'd like
     with open(trainingFile,'rb') as f:
         reader = csv.reader(f)
         trainingSet = list(reader)
@@ -177,5 +177,6 @@ if options.perceptronsJSON and options.trainingSet:
         trainPtron(key)
         
     savePerceptronsToJSON(perceptrons, "perceptronsMoreWiser.json")    
+
 else:        
     parser.error('REQUIRED -p <filename.json> -t <filename>')        
