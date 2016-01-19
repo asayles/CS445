@@ -72,34 +72,22 @@ def loadTrainingSet(trainingFile):
 
 def trainPtron(ptron_id):
     # runs a ptron through epoch's until there is no improvement in accuracy between epoch's
-    print "=== training ptron: " + ptron_id
     epochPosChange = True
     while epochPosChange:
-        print "--- new epoch for " + ptron_id
         epochPosChange = runEpoch(ptron_id)
         
 
 def runEpoch(ptron_id): 
     # if ptron isn't 100% accurate, adjust weights, if new weights are more accurate commit change and return True
-    accuracyOne = getAccuracy(ptron_id, perceptrons[ptron_id])
+    accuracyOne = getAccuracy(ptron_id, perceptrons[ptron_id]) # let's see where we are at
 
     if accuracyOne < 1: # only adjust weights if not perfect already
-        adjustedPtron = adjustWeights(ptron_id)
-        accuracyTwo = getAccuracy(ptron_id, adjustedPtron)
-        print "------ accuracy " + str(accuracyOne) + " " + str(accuracyTwo)
-        if accuracyTwo > accuracyOne:
-            print "------ change was positive"
-            print "------ out with the old....."
-            pprint(perceptrons[ptron_id])
-            print "------ saving...."
+        adjustedPtron = adjustWeights(ptron_id) # give me a better one
+        accuracyTwo = getAccuracy(ptron_id, adjustedPtron) # how are we now?
+        if accuracyTwo > accuracyOne: # there is improvement, commit change
             perceptrons[ptron_id].update(adjustedPtron)
-            print "------ in with the new"
-            pprint (perceptrons[ptron_id])
-            
- 
             return True
-    else:
-        print "------ change didn't help, or not needed"
+    else: # adjustment not needed
         return False
     
 
@@ -124,6 +112,7 @@ def getAccuracy(ptron_id, ptron):
     
 
 def testFeatureVector(ptron, featureVector):
+    # sums the ptron with the inputs from a trainingVector
     sum = ptron['w0'] # init sum with the bias
     
     for j in range(1,len(featureVector)):
@@ -135,6 +124,7 @@ def testFeatureVector(ptron, featureVector):
 
 
 def signumToAlpha(ptron_id, signum):
+    # for reuse
     if signum < 0: return ptron_id[0]
     else: return ptron_id[1]
                
@@ -186,6 +176,6 @@ if options.perceptronsJSON and options.trainingSet:
     for key in perceptrons:
         trainPtron(key)
         
-    #savePerceptronsToJSON(perceptrons, "perceptronsMoreWiser.json")    
+    savePerceptronsToJSON(perceptrons, "perceptronsMoreWiser.json")    
 else:        
     parser.error('REQUIRED -p <filename.json> -t <filename>')        
