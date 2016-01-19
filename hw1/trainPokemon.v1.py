@@ -3,6 +3,7 @@ import json, math, csv, sys
 from string import ascii_lowercase
 from optparse import OptionParser
 from pprint import pprint
+from random import shuffle
 
 ####################
 # argparser:      ##
@@ -67,20 +68,23 @@ def loadTrainingSet(trainingFile):
         reader = csv.reader(f)
         trainingSet = list(reader)
         
-    return trainingSet  
+    return trainingSet
 
 
 def trainPtron(ptron_id):
     # runs a ptron through epoch's until there is no improvement in accuracy between epoch's
     epochPosChange = True
+    # print "----------" + ptron_id
     while epochPosChange:
         epochPosChange = runEpoch(ptron_id)
-        
+
+
 
 def runEpoch(ptron_id): 
     # if ptron isn't 100% accurate, adjust weights, if new weights are more accurate commit change and return True
+    shuffle(trainingSet)
     accuracyOne = getAccuracy(ptron_id, perceptrons[ptron_id]) # let's see where we are at
-
+    # print "epoch accuracy: " + str(accuracyOne)
     if accuracyOne < 1: # only adjust weights if not perfect already
         adjustedPtron = adjustWeights(ptron_id) # give me a better one
         accuracyTwo = getAccuracy(ptron_id, adjustedPtron) # how are we now?
@@ -117,7 +121,8 @@ def testFeatureVector(ptron, featureVector):
     
     for j in range(1,len(featureVector)):
         weight = "w" + str(j) # nameing convention fix, could have used a list instead.
-        sum += ptron[weight] * (float(featureVector[j])/trainingDataScaler) # iterate over the weights and inputs to sum
+        scaledInput = float(featureVector[j]) / float(trainingDataScaler)
+        sum += ptron[weight] * scaledInput # iterate over the weights and inputs to sum
     
     if sum < 0: return -1
     else: return 1
@@ -147,7 +152,8 @@ def adjustWeights(ptron_id):
                 
                 for j in range(1,len(featureVector)):
                     weight = "w" + str(j) # nameing convention fix, could have used a list instead.
-                    adjustedPtron[weight] += learningRate * (float(featureVector[j])/trainingDataScaler) * targetNum
+                    scaledInput = float(featureVector[j]) / float(trainingDataScaler)
+                    adjustedPtron[weight] = float(adjustedPtron[weight]) + float(learningRate) * float(scaledInput) * float(targetNum)
                                
     return adjustedPtron  
         
@@ -172,10 +178,15 @@ if options.perceptronsJSON and options.trainingSet:
     trainingSet = loadTrainingSet(options.trainingSet)
     learningRate = options.learningRate    
     trainingDataScaler = options.scaler
-
+    progressCounter = 0
+    
     for key in perceptrons:
-        trainPtron(key)
+        progressCounter += 1
+        text = "\rprogress: " + str(progressCounter) + " of 325"
+        sys.stdout.write(text)
         
+        trainPtron(key)
+
     savePerceptronsToJSON(perceptrons, "perceptronsMoreWiser.json")    
 
 else:        
