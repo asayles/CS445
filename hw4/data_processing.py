@@ -90,7 +90,8 @@ def meanHelper(sourceList):
 
 #---------------------------------------------
 # helper: takes set, returns list of sDev
-
+def sDevHelper(sourceList, meanList):
+    
 
 
 
