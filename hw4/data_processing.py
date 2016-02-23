@@ -12,7 +12,10 @@ def importCSVAsList():
     return raw_list
 
 #------------------------------------------
-# split list into four similar parts
+# split sourceList into 3 subsets. Also, return probability of pos
+# set 1. test set = 40 pos: 60 neg
+# set 2. train_pos = 40 pos
+# set 3. train_neg = 60 neg
 def splitList(sourceList):
     zeroes = []
     zeroes_len = 0
@@ -69,14 +72,39 @@ def splitList(sourceList):
     
     return training_pos, training_neg, test_set, training_set_prob_spam
 
+#------------------------------------------
+# helper: takes set, returns list of means
+def meanHelper(sourceList):
+    size_of_list = len(sourceList)
+    meanList = [0.0]*58
+    
+    # sum all the feature values
+    for instance in sourceList:
+        for index_of_feature in range(len(instance)):
+            meanList[index_of_feature] = float(meanList[index_of_feature]) + float(instance[index_of_feature])
+    # divide by size_of_list
+    for index_of_feature in range(len(meanList)):
+        meanList[index_of_feature] = meanList[index_of_feature] / size_of_list 
+   
+    return meanList
+
+#---------------------------------------------
+# helper: takes set, returns list of sDev
+
+
+
+
+
 #---------------------
 # process the dataz
-def createProbabilisticModel(training_pos, training_neg, test_set, prob_of_spam):
+def createProbabilisticModel(train_pos, train_neg, test_set, prob_of_spam):
     print len(training_pos), len(training_neg), len(test_set), prob_of_spam
-    mean_pos = []
-    mean_neg = []
-    sDev_pos = []
-    sDev_neg = []
+    mean_pos = meanHelper(train_pos)
+    mean_neg = meanHelper(train_neg)
+    sDev_pos = meanHelper(train_pos)
+    sDev_neg = meanHelper(train_pos)
+    
+    
 
 #----------------------
 # main            
