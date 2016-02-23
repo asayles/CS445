@@ -54,8 +54,7 @@ def splitList(sourceList):
             heroes_index = random.randint(0,heroes_max_index)
             training_pos.append(heroes.pop(heroes_index))
             count_heroes = count_heroes + 1
-    training_set_prob_spam = float(len(training_pos))/(float(len(training_pos)) + float(len(training_neg)))    
-    
+       
     count_zeroes = 0
     count_heroes = 0
     while len(test_set) < max_size:
@@ -70,7 +69,7 @@ def splitList(sourceList):
             test_set.append(heroes.pop(heroes_index))
             count_heroes = count_heroes + 1
     
-    return training_pos, training_neg, test_set, training_set_prob_spam
+    return training_pos, training_neg, test_set
 
 #------------------------------------------
 # helper: takes set, returns list of means
@@ -91,24 +90,35 @@ def meanHelper(sourceList):
 #---------------------------------------------
 # helper: takes set, returns list of sDev
 def sDevHelper(sourceList, meanList):
+    size_of_list = len(sourceList)
+    varianceList = [0.0] * 58
+    sDevList = [0.0] * 58
     
-
-
-
+    for instance in sourceList:
+        for index_of_feature in range(len(instance)):
+            thisDifference = (meanList[index_of_feature] - float(instance[index_of_feature]))
+            varianceList[index_of_feature] = varianceList[index_of_feature] + (thisDifference * thisDifference)
+    
+    for index_of_feature in range(len(varianceList)):
+        sDevList[index_of_feature] = varianceList[index_of_feature] / size_of_list
+    
+    return sDevList
 
 #---------------------
 # process the dataz
-def createProbabilisticModel(train_pos, train_neg, test_set, prob_of_spam):
-    print len(training_pos), len(training_neg), len(test_set), prob_of_spam
-    mean_pos = meanHelper(train_pos)
-    mean_neg = meanHelper(train_neg)
-    sDev_pos = meanHelper(train_pos)
-    sDev_neg = meanHelper(train_pos)
+def createProbabilisticModel(train_pos, train_neg):
+    probModel = {}
+    probModel['p_prob_pos'] = len(training_pos) / (float(len(train_pos)) + float(len(train_neg)))
+    probModel['p_prob_pos'] = len(training_neg) / (float(len(train_neg)) + float(len(train_pos)))   
+    probModel['mean_pos'] = meanHelper(train_pos)
+    probModel['mean_neg'] = meanHelper(train_neg)
+    probModel['sDev_pos'] = sDevHelper(train_pos, probModel['mean_pos'])
+    probModel['sDev_neg'] = sDevHelper(train_neg, probModel['mean_neg'])
     
-    
+    return probModel
 
 #----------------------
 # main            
 if __name__ == "__main__":
-    training_pos, training_neg, test_set, prob_of_spam = splitList(importCSVAsList())
-    createProbabilisticModel(training_pos, training_neg, test_set, prob_of_spam)
+    training_pos, training_neg, test_set, = splitList(importCSVAsList())
+    prob_model = createProbabilisticModel(training_pos, training_neg)
