@@ -1,0 +1,35 @@
+#===============================
+# Multilayer neural networks
+#===============================
+ Can represent non-linear surface
+ No algorithm for learning in multi-layered
+    networks, and no convergence theorem!
+Sigmoid activation function
+    0 = σ(w⋅ x), where σ(z) = (1 / 1+ e^−z)      
+Forward propagation
+    Assume two-layer networks (i.e., one hidden layer):
+        I. For each test example:
+            1. Present input to the input layer.
+            2. Forward propagate the activations times the weights to each node
+                in the hidden layer.
+            3. Forward propagate the activations times weights from the hidden
+                layer to the output layer.
+            4. Interpret the output layer as a classification.
+Momentum
+    The idea is to keep weight changes moving in the same direction
+    Δw^t = (learning rate) (δ error) (input) + (Momentum) (Δw^(t−1))      
+#==============
+# SVM
+#==============
+Instances are represented by vector x ∈ ℜn
+input = traingin examples
+output = alpha's, support vectors, bias
+Margin
+    Distance from separating hyperplane to nearest positive (or negative) instance.
+    Length of margin (1 / ||w||)   
+Support Vectors
+    Elements of the training set that would changes the poistion of the hyperplane if removed.
+#===================
+# Kernel function
+#===================
+

@@ -1,0 +1,44 @@
+CS 445/545
+
+Quiz on Tuesday, January 12
+
+#--------------------
+# INTRODUCTION
+#--------------------
+Machine learning tasks:
+    - Classification; output is one of a number of classes ex. 'A'
+    - Regression; output is a real value ex. $35/share
+
+Machine learning types:
+    - Supervised; Provide training with correct answers
+    - Unsupervised; No feedback. Clustering based on similarity.
+    - Semi-supervised; some feedback is provided, but not detailed.
+    
+Instance; Individual example of a particular class.
+    - trainPokemon(perceptron,instance)
+Feature; Collection of attributes of a single instance
+Feature Vector; N-dimensional vector describing a single instance 
+Data:
+    - Training; Used to train the model
+    - Validation; Used to select model complexity, to determine further training time, method
+    - Test; Used to evaluate trained model
+#--------------------
+# PERCEPTRONS
+#--------------------
+Input is (x1, x2, ... xn)
+Weights are (w1, w2, ... wn) 
+Output = y(x) = sgn(w0 x0 +w1x1 +w2 x2 +...+wn xn )
+
+Classifictaiton Methods:
+    - One vs. All;
+    - All-pairs
+    
+Stochastic gradient descent:
+    ► Δwi = −η ( ∂J / ∂wi ) = η x[i]^k t^k
+ -----
+    ► wi ← wi + Δwi
+    ► Δw[i] =η (x[i]^k) (t^k) || η (input)(target)
+    
+How to interpret / fill in a confusion matrix:
+        - Identity are the accurate values
+        - accuracy = (# of right / Total)

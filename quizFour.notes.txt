@@ -1,0 +1,61 @@
+Filter - pre classifiear. 
+    -information gain
+     "how much information about the classifictationthe feature provides"
+    -variance of individual features
+     ""
+    -correlation among features
+Wrapper - 
+
+Filter Methods
+Pros: Fast
+Cons: Chosen filter might
+not be relevant for a specific
+kind of classifier.
+Doesn’t take into account
+interactions among features
+Often hard to know how
+many features to select.
+
+Wrapper Methods
+Pros: Features are evaluated
+in context of classification
+Wrapper method selects
+number of features to use
+Cons: Slow 
+
+
+
+Embedded methods
+    -Result is that most of the weights go to zero, leaving a small subset of the weights.
+
+information gain. How it's used for feature selection.
+
+Outline adaboost algo
+
+• Given S = {(x1, y1), ..., (xN, yN)} where x ∈ X, yi ∈ {+1, −1}
+• Initialize w1(i) = 1/N. (Uniform distribution over data) 
+• For t = 1, ..., K:
+    – Select new training set S[t] from S with replacement, according to w[t]
+    – Train L on S[t] to obtain hypothesis h[t]
+    – Compute the training error ε[t] of h[t] on S : 
+               N        
+        ε[t] = ∑ w[t] (j) δ(yj ≠ ht(x j)), where
+              j=1
+                           / 1 if yj ≠ ht(x j)
+        δ(yj ≠ ht(x j)) = <
+                           \ 0 otherwise
+    – Compute coefficient
+        α[t] = 1/2 ln(1-ε[t] / ε[t])
+
+    – Compute new weights on data:
+        For i = 1 to N 
+                        wt(i) exp(−α[t]y[i]h[t](x[i]))
+            w[t+1](i) = ------------------------------
+                                    Z[t]
+                                    
+        where Z[t] is a normalization factor chosen so that w[t+1] will be a probability distribution: 
+                   N
+            Z[t] = ∑ w[t](i) exp(−α[t]y[i]h[t](x[i]))
+                  i=1
+                  
+ 
