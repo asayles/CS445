@@ -3,7 +3,6 @@
 import data_processing as dp
 import math
 
-
 #=============
 # FUNCTIONS  |
 #=============
@@ -85,8 +84,8 @@ def outputYoda():
     print "    .  ` __::__ '  .      "
     print "      -:.`'..`'.:-        "
     print "        \ `--' /          "
-    print "\n \"The Force is strong with this one\""
-    print "                  - YODA"
+    print "\n \"Do. Or do not. There is no try\""
+    print "       - YODA (The Empire Strikes Back)"
     
 #----------------------------------------------
 # make a pretty confusion matrix to display
@@ -118,12 +117,13 @@ def outputAccuracy(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos):
     print " \,'`./ | \,'`./    U  | (|)"    
     print "  `. / \"\"\" \ ,'     | (|)"
     print "    '-._|_,-`      (|)"
-    print "\n .-----------------." 
-    print " | PRECISION =",precision    
-    print " '-----------------'" 
-    print " .-----------------." 
-    print " | RECALL =",recall    
-    print " '-----------------'" 
+    print "\n .---------------------------." 
+    print "  PRECISION =",precision    
+    print " '---------------------------'" 
+    print " .-------------------------." 
+    print "  RECALL =",recall    
+    print " '-------------------------'" 
+
 #----------------------
 # output results of jediBloodTest
 def outputResults(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos):
