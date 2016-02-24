@@ -21,17 +21,20 @@ def probOfFeatureGivenClass(value, mean, sDev):
 #---------------------------
 # do some terrible math   
 def N(value, mean, sDev):
-    # log(termOne / termTwo) == log(termTwo) - log(termOne)
-    expFracNum = math.pow((value - mean),2)
-    expFracDem = 2 * math.pow(sDev,2)
-    exponent = expFracNum / expFracDem
-    termOne = math.exp(-(exponent))
-    termTwo = (math.sqrt(2 * math.pi) * sDev)
+    # hackery fix for divide by 0 and domain errors
+    if sDev == 0.0:
+        sDev = 1 * math.pow(10,-20)
 
-    if termOne == 0.0:
-        return exponent - math.log(termTwo)
+    exp_frac_num = math.pow((value - mean),2)
+    exp_frac_dem = 2 * math.pow(sDev,2)
+    exponent = exp_frac_num / exp_frac_dem
+    term_one = math.exp(-(exponent))
+    term_two = (math.sqrt(2 * math.pi) * sDev)
+    
+    if term_one == 0.0:
+        return exponent, term_two
     else:
-        return math.log(termOne) - math.log(termTwo)
+        return term_one, term_two
 
 #---------------------
 # sum the log things
@@ -40,7 +43,14 @@ def midichlorianTest(instance, prior_prob, meanList, sDevList):
     midichlorian_count = math.log(prior_prob)
     # add each feature prob to the sum
     for i in range(57):
-        midichlorian_count = midichlorian_count + probOfFeatureGivenClass(float(instance[i]), meanList[i], sDevList[i])
+        # hackery fix for domain errors
+        # log(termOne / termTwo) == log(termTwo) - log(termOne)
+        term_one, term_two = probOfFeatureGivenClass(float(instance[i]), meanList[i], sDevList[i])
+        # print "one: ", term_one, "two: ", term_two
+        foo = math.log(term_one)
+        bar = math.log(term_two)
+        prob_for_this_feature =  foo - bar
+        midichlorian_count = midichlorian_count + prob_for_this_feature
     
     return midichlorian_count
 
