@@ -46,7 +46,6 @@ def midichlorianTest(instance, prior_prob, meanList, sDevList):
         # hackery fix for domain errors
         # log(termOne / termTwo) == log(termTwo) - log(termOne)
         term_one, term_two = probOfFeatureGivenClass(float(instance[i]), meanList[i], sDevList[i])
-        # print "one: ", term_one, "two: ", term_two
         foo = math.log(term_one)
         bar = math.log(term_two)
         prob_for_this_feature =  foo - bar
@@ -99,11 +98,37 @@ def outputConfusionMatrix(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose
     print "    |_______|_______"
     print "neg | ", neg_chose_pos," | ", neg_chose_neg
     print "    |_______|_______"
-    print "-------------------------"
+
+#------------------------
+# show the accuracy in the best way possible
+def outputAccuracy(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos):
+
+    accuracy = (pos_chose_pos + float(neg_chose_neg)) / (pos_chose_pos + pos_chose_neg + neg_chose_neg + neg_chose_pos)
+    percent = int(accuracy * 100)
+    precision = float(pos_chose_pos) / (pos_chose_pos + neg_chose_pos)
+    recall = float(pos_chose_pos) / (pos_chose_pos + pos_chose_neg)
+    
+    
+    print "\n\n    ,-\'\"\"\"`-,    .-----------------." 
+    print "  ,' \ _|_ / `.  | ACCURACY =",percent,"% |"    
+    print " /`.,'\ | /`.,'\ '--------|--------'"   
+    print "(  /`. \|/ ,'\  )      |  H "       
+    print "|--|--;=@=:--|--|   |  H  U "      
+    print "(  \,' /|\ `./  )   H  U  | "     
+    print " \,'`./ | \,'`./    U  | (|)"    
+    print "  `. / \"\"\" \ ,'     | (|)"
+    print "    '-._|_,-`      (|)"
+    print "\n .-----------------." 
+    print " | PRECISION =",precision    
+    print " '-----------------'" 
+    print " .-----------------." 
+    print " | RECALL =",recall    
+    print " '-----------------'" 
 #----------------------
 # output results of jediBloodTest
 def outputResults(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos):
     outputConfusionMatrix(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos)
+    outputAccuracy(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos)
 
 #========
 # MAIN  |
