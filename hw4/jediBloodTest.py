@@ -63,12 +63,21 @@ def getMetrics():
     is_neg_chose_pos = 0
     
     for instance in test_set:
-        this_class = instance[57]
+        this_class = int(instance[57])
         sith = midichlorianTest(instance, prob_model['p_prob_neg'], prob_model['mean_neg'], prob_model['sDev_neg'])
         jedi = midichlorianTest(instance, prob_model['p_prob_pos'], prob_model['mean_pos'], prob_model['sDev_pos'])
         
-        print sith, jedi
-
+        if this_class == 0:
+            if jedi < sith:
+                is_neg_chose_neg += 1
+            else:
+                is_neg_chose_pos += 1
+        else:
+            if jedi > sith:
+                is_pos_chose_pos += 1
+            else:
+                is_pos_chose_neg += 1
+    print is_pos_chose_pos, is_pos_chose_neg, is_neg_chose_neg, is_neg_chose_pos
 
 #========
 # MAIN  |
