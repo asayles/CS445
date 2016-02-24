@@ -77,10 +77,38 @@ def getMetrics():
                 is_pos_chose_pos += 1
             else:
                 is_pos_chose_neg += 1
-    print is_pos_chose_pos, is_pos_chose_neg, is_neg_chose_neg, is_neg_chose_pos
+    return is_pos_chose_pos, is_pos_chose_neg, is_neg_chose_neg, is_neg_chose_pos
+#---------------------------
+# because fun...
+def outputYoda():
+    print "          .--."
+    print "  \`--._,'.::.`._.--'/    "
+    print "    .  ` __::__ '  .      "
+    print "      -:.`'..`'.:-        "
+    print "        \ `--' /          "
+    print "\n \"The Force is strong with this one\""
+    print "                  - YODA"
+    
+#----------------------------------------------
+# make a pretty confusion matrix to display
+def outputConfusionMatrix(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos):
+    print "\n\n----- CONFUCIUS SAYS ----"
+    print "       pos     neg  "
+    print "     _______________"
+    print "pos | ", pos_chose_pos," | ", pos_chose_neg
+    print "    |_______|_______"
+    print "neg | ", neg_chose_pos," | ", neg_chose_neg
+    print "    |_______|_______"
+    print "-------------------------"
+#----------------------
+# output results of jediBloodTest
+def outputResults(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos):
+    outputConfusionMatrix(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos)
 
 #========
 # MAIN  |
 #========
 if __name__ == "__main__":
-    getMetrics()
+    outputYoda()
+    pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos = getMetrics()
+    outputResults(pos_chose_pos, pos_chose_neg, neg_chose_neg, neg_chose_pos)
