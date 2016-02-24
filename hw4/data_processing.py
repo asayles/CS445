@@ -2,7 +2,6 @@
 
 import csv, random
 
-
 #-------------------------------
 # import raw data file to list
 def importCSVAsList():
@@ -108,8 +107,8 @@ def sDevHelper(sourceList, meanList):
 # process the dataz
 def createProbabilisticModel(train_pos, train_neg):
     probModel = {}
-    probModel['p_prob_pos'] = len(training_pos) / (float(len(train_pos)) + float(len(train_neg)))
-    probModel['p_prob_pos'] = len(training_neg) / (float(len(train_neg)) + float(len(train_pos)))   
+    probModel['p_prob_pos'] = len(train_pos) / (float(len(train_pos)) + float(len(train_neg)))
+    probModel['p_prob_neg'] = len(train_neg) / (float(len(train_neg)) + float(len(train_pos)))   
     probModel['mean_pos'] = meanHelper(train_pos)
     probModel['mean_neg'] = meanHelper(train_neg)
     probModel['sDev_pos'] = sDevHelper(train_pos, probModel['mean_pos'])

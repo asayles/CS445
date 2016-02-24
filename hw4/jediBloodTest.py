@@ -4,6 +4,10 @@ import data_processing as dp
 import math
 
 
+#=============
+# FUNCTIONS  |
+#=============
+
 #--------------------
 # data processing and prep work
 train_pos,train_neg,test_set = dp.splitList(dp.importCSVAsList())
@@ -13,25 +17,30 @@ prob_model = dp.createProbabilisticModel(train_pos,train_neg)
 # wrapper function for clarity
 def probOfFeatureGivenClass(value, mean, sDev):
     return N(value, mean,sDev)
-    
+
 #---------------------------
 # do some terrible math   
 def N(value, mean, sDev):
-    termOne = 1 / (math.sqrt(2 * math.pi) * sDev)
+    # log(termOne / termTwo) == log(termTwo) - log(termOne)
     expFracNum = math.pow((value - mean),2)
     expFracDem = 2 * math.pow(sDev,2)
-    termTwo = math.exp(expFracNum/expFracDem)
-    
-    return termOne * termTwo
+    exponent = expFracNum / expFracDem
+    termOne = math.exp(-(exponent))
+    termTwo = (math.sqrt(2 * math.pi) * sDev)
+
+    if termOne == 0.0:
+        return exponent - math.log(termTwo)
+    else:
+        return math.log(termOne) - math.log(termTwo)
 
 #---------------------
 # sum the log things
 def midichlorianTest(instance, prior_prob, meanList, sDevList):
     # initialize the sum with prior prob
-    midichlorian_count = log(prior_prob)
+    midichlorian_count = math.log(prior_prob)
     # add each feature prob to the sum
     for i in range(57):
-        midichlorian_count = midichlorian_count + log(probOfFeatureGivenClass(float(instance[i]), meanList[i], sDevList[i]))
+        midichlorian_count = midichlorian_count + probOfFeatureGivenClass(float(instance[i]), meanList[i], sDevList[i])
     
     return midichlorian_count
 
@@ -48,3 +57,11 @@ def getMetrics():
         sith = midichlorianTest(instance, prob_model['p_prob_neg'], prob_model['mean_neg'], prob_model['sDev_neg'])
         jedi = midichlorianTest(instance, prob_model['p_prob_pos'], prob_model['mean_pos'], prob_model['sDev_pos'])
         
+        print sith, jedi
+
+
+#========
+# MAIN  |
+#========
+if __name__ == "__main__":
+    getMetrics()
