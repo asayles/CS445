@@ -5,7 +5,6 @@ from pprint import pprint as pp
 from random import randint
 
 
-
 def createCentroids(size_of_centroids, num_of_centroids, range_of_centroids):
     #create size number of centroids "m"
     centroids = []
@@ -15,6 +14,7 @@ def createCentroids(size_of_centroids, num_of_centroids, range_of_centroids):
             foo.append(randint(0,range_of_centroids))
         centroids.append(foo)    
     return centroids
+
 
 def loadFile(file_name):
     with open(file_name,'a+') as raw_file:
@@ -96,11 +96,13 @@ def findSSE(centroids, centroid_groups, instances):
                 sum += math.pow(centroids[i][k] - int(instances[j][k]),2)
     return sum
 
+
 def the_D(m1, m2):
     sum = 0
     for i in range(len(m1)):
         sum += math.pow(m1[i] - m2[i],2)
     return sum
+
 
 def findSSSep(centroids):
     sum = 0
@@ -108,6 +110,7 @@ def findSSSep(centroids):
         for j in range((i+1),len(centroids)):
             sum += the_D(centroids[i],centroids[j])
     return sum
+
 
 def findSingleEntropy(centroid, group, instances):
     occurence = [0] * K
@@ -125,6 +128,7 @@ def findSingleEntropy(centroid, group, instances):
     term_one = len(group)/float(len(instances))
     return term_one * term_two
 
+
 def findEntropy(centroids, centroid_groups, instances):
     sum = 0
     for i in range(len(centroids)):
@@ -132,24 +136,21 @@ def findEntropy(centroids, centroid_groups, instances):
     return sum
 
 
-#=============
-# EXPR 1
-#=============
 def main_one():
     best_SSE = 0
     best_SSSep = 0 
     best_mEntropy = 0
     best_centroids = []
+    print "[ EXPR 1 (k=10) ]"
     
-    for run_num in range(1):
-        print "run: ", run_num
+    for run_num in range(5):
         train_data = loadFile('optdigits/optdigits.train')
         num_training_instances = len(train_data)
 
         new_centroids = []
         centroid_groups = []
 
-        centroids = createCentroids(num_features,K, CENTROID_RANGE)
+        centroids = createCentroids(NUM_FEATURES,K, CENTROID_RANGE)
 
         while centroids != new_centroids:
             if new_centroids:
@@ -161,20 +162,71 @@ def main_one():
                 for i in centroid_groups:
                     if len(i) == 0:
                         empty_group_found = True
-                        centroids = createCentroids(num_features,K, CENTROID_RANGE)
+                        centroids = createCentroids(NUM_FEATURES,K, CENTROID_RANGE)
             new_centroids = adjustCentroids(centroid_groups, train_data)
 
         this_SSE = findSSE(new_centroids, centroid_groups, train_data)
         this_SSSep = findSSSep(new_centroids)
         this_mEntropy = findEntropy(new_centroids, centroid_groups, train_data)
-        print this_SSE
         if this_SSE > best_SSE:
             best_SSE = this_SSE
             best_SSSep = this_SSSep
             best_mEntropy = this_mEntropy
             best_centroids = new_centroids
-    print best_SSE
+        print "  run: ", run_num ,"; SSE = ", this_SSE
+    
+    print "  best_SSE: ", best_SSE
+    print "  best_SSSep: ", best_SSSep
+    print "  best_mEntropy: ", best_mEntropy
     return best_SSE, best_SSSep, best_mEntropy, best_centroids
+
+
+def main_two():
+    best_SSE = 0
+    best_SSSep = 0 
+    best_mEntropy = 0
+    best_centroids = []
+    print "[ EXPR 2 (k=30) ]"
+    
+    for run_num in range(5):
+        train_data = loadFile('optdigits/optdigits.train')
+        num_training_instances = len(train_data)
+
+        centroids = []
+        centroid_groups = []
+        new_centroids = createCentroids(NUM_FEATURES,K, CENTROID_RANGE)
+
+        while centroids != new_centroids:
+            centroids = new_centroids
+            centroid_groups = findYourCenter(train_data, centroids)
+            
+            old_len = 0
+            new_len = len(centroid_groups)
+            while old_len != new_len:
+                old_len = new_len 
+                for i in range(len(centroid_groups)):
+                    if len(centroid_groups[i]) == 0:
+                        centroid_groups.pop(i)
+                        new_len = len(centroid_groups)
+                        break
+            
+            new_centroids = adjustCentroids(centroid_groups, train_data)
+
+        this_SSE = findSSE(new_centroids, centroid_groups, train_data)
+        this_SSSep = findSSSep(new_centroids)
+        this_mEntropy = findEntropy(new_centroids, centroid_groups, train_data)
+        if this_SSE > best_SSE:
+            best_SSE = this_SSE
+            best_SSSep = this_SSSep
+            best_mEntropy = this_mEntropy
+            best_centroids = new_centroids
+        print "  run: ", run_num ,"; SSE = ", this_SSE
+    
+    print "  best_SSE: ", best_SSE
+    print "  best_SSSep: ", best_SSSep
+    print "  best_mEntropy: ", best_mEntropy
+    return best_SSE, best_SSSep, best_mEntropy, best_centroids
+
 
 def findYourClass(groups, instances):
     most_freq_class = []
@@ -198,9 +250,11 @@ def findYourClass(groups, instances):
         most_freq_class.append(highest_class)
     return most_freq_class
 
+
 def print_confusion_matrix(centroid_classes, centroid_groups_test, instances):
-    matrix_row_headers = [0,1,2,3,4,5,6,7,8,9]
-    matrix_column_headers = [0,1,2,3,4,5,6,7,8,9]
+    matrix_column_title =   ['           P R E D I C T E D           ']
+    matrix_column_headers = ['0   1   2   3   4   5   6   7   8   9 ']
+    matrix_row_headers = ['  0','A 1','C 2','T 3','U 4','A 5','L 6','  7','  8','  9']
     confusion_matrix = [[0,0,0,0,0,0,0,0,0,0,0] for i in range(10)]
     correct = 0
     total = 0
@@ -213,15 +267,13 @@ def print_confusion_matrix(centroid_classes, centroid_groups_test, instances):
                 correct += 1
             total += 1
     
-    print correct, total
-    print "accuracy: ", correct/float(total)
-    print " ", matrix_column_headers
+    print "  accuracy: ", correct/float(total)
+    print "   ", matrix_column_title
+    print "   ", matrix_column_headers
     for i in range(len(confusion_matrix)):
         print matrix_row_headers[i], confusion_matrix[i]
         
 def print_as_pgm(one_cluster_center, the_index, file_prefix):
-    # print "one center: "
-
     # define the width  (columns) and height (rows) of your image
     width = 8
     height = 8
@@ -232,7 +284,6 @@ def print_as_pgm(one_cluster_center, the_index, file_prefix):
     for i in range(0, width*height):
       buff.append(int(round(one_cluster_center[i])) * 16)
 
-
     # open file for writing
     filename = file_prefix + "." + str(the_index) + ".pgm"
 
@@ -241,7 +292,6 @@ def print_as_pgm(one_cluster_center, the_index, file_prefix):
     except IOError, er:
       print "Cannot open file "
       sys.exit()
-
 
     # define PGM Header
     pgmHeader = 'P5' + '\n' + str(width) + '  ' + str(height) + '  ' + str(255) + '\n'
@@ -258,14 +308,27 @@ def print_as_pgm(one_cluster_center, the_index, file_prefix):
 #=============
 # MAIN:
 #=============
-K = 10
-num_features = 64
+NUM_FEATURES = 64
 CENTROID_RANGE = 16
 
+#--------------
+# EXPR 1
+K = 10
 SSE, SSSep, mEntropy, centroids = main_one()
-test_data = loadFile('optdigits/optdigits.train')
+test_data = loadFile('optdigits/optdigits.test')
 centroid_groups_test = findYourCenter(test_data, centroids)
 centroid_classes = findYourClass(centroid_groups_test, test_data)
 print_confusion_matrix(centroid_classes, centroid_groups_test, test_data)
 for i in range(len(centroids)):
     print_as_pgm(centroids[i],i, 'expr1')
+
+#-----------
+# EXPR 2
+K=30
+SSE, SSSep, mEntropy, centroids = main_two()
+test_data = loadFile('optdigits/optdigits.test')
+centroid_groups_test = findYourCenter(test_data, centroids)
+centroid_classes = findYourClass(centroid_groups_test, test_data)
+print_confusion_matrix(centroid_classes, centroid_groups_test, test_data)
+for i in range(len(centroids)):
+    print_as_pgm(centroids[i],i, 'expr2')
