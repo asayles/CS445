@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import csv, math, sys, json
+import csv, math, sys, json, array
 from pprint import pprint as pp
 from random import randint
 
